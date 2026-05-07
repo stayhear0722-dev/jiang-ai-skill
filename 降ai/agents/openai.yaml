@@ -1,0 +1,4 @@
+interface:
+  display_name: "降AI"
+  short_description: "按红黄绿分级改写论文，增强真人写作感"
+  default_prompt: "使用 $jiang-ai 检查并改写这篇 Word 论文，按红黄绿分级处理高风险段落，并保留原有排版。"
