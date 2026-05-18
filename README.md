@@ -2,10 +2,14 @@
 
 `jiang-ai-skill` 是一个面向中文论文和学术文本的 Codex skill，目标是降低模板化、机械化的 AI 表达痕迹，让文本更接近真实作者反复推敲后的写作状态，同时尽量保留专业术语、事实、数据、引文和原有文档结构。
 
+本项目采用 PDCA 小步试验方式：建议先对单章或少量高风险段落试跑、复扫、记录经验，再扩大到全文。它不是查重或 AIGC 检测系统的逆向工具，也不承诺任何平台结果。
+
+在已有样本测试中，这个 skill 曾将维普 AIGC 检测率从 88% 降至 20%，也曾将 70% 以上的结果降至 15%。这些结果来自具体文本、具体轮次和人工复扫配合下的实测案例，只作为项目效果记录，不代表对任何检测平台的稳定通过承诺。
+
 这个项目包含两部分：
 
 - `降ai/`：skill 本体，定义任务边界、改写原则、红黄绿分级和 DOCX 工作流。
-- `scripts/docx_io.py`：配套的轻量 DOCX 辅助脚本，用于读取段落、替换段落、分析格式和输出基础格式化文档。
+- `降ai/scripts/docx_io.py`：配套的轻量 DOCX 辅助脚本，用于读取段落、替换段落、分析格式和输出基础格式化文档。
 
 这个仓库用于公开展示我在中文学术写作辅助方向上的实践，也可以作为后续申请项目计划时的开源项目材料。
 
@@ -23,10 +27,14 @@ jiang-ai-skill/
 ├─ README.md
 ├─ LICENSE
 ├─ requirements.txt
-├─ scripts/
-│  └─ docx_io.py
 └─ 降ai/
    ├─ SKILL.md
+   ├─ references/
+   │  ├─ long-doc-workflow.md
+   │  ├─ rewrite-methods.md
+   │  └─ risk-signals.md
+   ├─ scripts/
+   │  └─ docx_io.py
    └─ agents/
       └─ openai.yaml
 ```
@@ -42,7 +50,7 @@ jiang-ai-skill/
 
 ### 2. 脚本侧
 
-`scripts/docx_io.py` 当前提供这些命令：
+`降ai/scripts/docx_io.py` 当前提供这些命令：
 
 - `read`：读取 `.docx` 非空段落并编号输出
 - `replace`：替换指定段落，默认输出为新文件，不覆盖原文
@@ -58,6 +66,8 @@ jiang-ai-skill/
 
 - 依赖 `python-docx`，需要先安装依赖后再运行
 - 更适合基础的 DOCX 读取、段落替换、格式分析和轻量格式化输出
+- `replace` 只能尽量保留段落级样式和首个文本 run 的基础字体信息；段内混合格式、斜体、颜色、上下标、超链接、脚注、批注、修订痕迹等需要人工复核
+- `formatted_write` 是新建文档并套用基础格式，不等同于在原 DOCX 上完整保留排版
 - 对非常复杂的论文模板、特殊域对象、脚注、批注、修订痕迹等场景，兼容性有限
 - 不承诺任何 AIGC 检测平台结果
 - 不保证适配所有学校模板或所有第三方查重/检测流程
@@ -72,7 +82,7 @@ pip install -r requirements.txt
 
 ### 作为 Codex skill 使用
 
-把 `降ai/` 目录放到本地 Codex skills 目录后，即可按 skill 方式调用。
+把 `降ai/` 目录完整放到本地 Codex skills 目录后，即可按 skill 方式调用。请保留其中的 `references/` 和 `scripts/`，它们是运行时会读取的配套文件。
 
 如果你的环境支持按名称引用 skill，可以直接使用：
 
@@ -85,31 +95,31 @@ pip install -r requirements.txt
 ### 1. 读取段落
 
 ```bash
-python scripts/docx_io.py read input.docx
+python 降ai/scripts/docx_io.py read input.docx
 ```
 
 ### 2. 替换指定段落并输出为新文件
 
 ```bash
-echo 这是新的段落内容 | python scripts/docx_io.py replace input.docx 12 --output output.docx
+echo 这是新的段落内容 | python 降ai/scripts/docx_io.py replace input.docx 12 --output output.docx
 ```
 
 ### 3. 写入纯文本到新文档
 
 ```bash
-type content.txt | python scripts/docx_io.py write output.docx
+type content.txt | python 降ai/scripts/docx_io.py write output.docx
 ```
 
 ### 4. 分析模板格式
 
 ```bash
-python scripts/docx_io.py analyze template.docx
+python 降ai/scripts/docx_io.py analyze template.docx
 ```
 
 ### 5. 生成基础格式化文档
 
 ```bash
-type content.md | python scripts/docx_io.py formatted_write output.docx --template template.docx
+type content.md | python 降ai/scripts/docx_io.py formatted_write output.docx --template template.docx
 ```
 
 ## 开源说明

@@ -29,7 +29,14 @@ def read_docx(file_path: str) -> str:
 
 
 def replace_paragraph(file_path: str, index: int, new_text: str, output_path: str = None) -> str:
-    """Replace a single paragraph in-place, preserving original formatting.
+    """Replace a single paragraph in-place with lightweight formatting preservation.
+
+    Warning:
+        This keeps the paragraph style and the first non-empty run's basic
+        font properties only. Mixed run formatting, italic/underline, colors,
+        highlights, hyperlinks, fields, footnote anchors, superscript/subscript,
+        comments, and tracked changes may be flattened or lost. Review complex
+        academic templates manually after replacement.
 
     Args:
         file_path: Path to source .docx
@@ -571,6 +578,11 @@ def formatted_write_docx(file_path: str, text: str, template_path: str = None):
 
 
 def main():
+    if sys.platform == "win32":
+        sys.stdin.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+
     if len(sys.argv) < 3:
         print("Usage: python3 docx_io.py <read|replace|write|analyze|formatted_write> "
               "<file_path> [args...]", file=sys.stderr)
@@ -590,6 +602,9 @@ def main():
             print("Usage: python3 docx_io.py replace <file_path> <paragraph_index> "
                   "[--output <path>]", file=sys.stderr)
             print("  Paragraph text is read from stdin.", file=sys.stderr)
+            print("  Warning: preserves only paragraph style and the first text run's "
+                  "basic font information; complex run formatting needs manual review.",
+                  file=sys.stderr)
             sys.exit(1)
         index = int(sys.argv[3])
         out_path = None
